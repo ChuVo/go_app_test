@@ -5,7 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
+
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
 
 func main() {
 	fmt.Println("Get Start!")
@@ -14,14 +20,23 @@ func main() {
 	// Добавляем небольшую справку, объясняющая, что содержит данный флаг.
 	// Значение флага будет сохранено в переменной addr.
 	addr := flag.String("addr", ":4000", "Сетевой адрес HTTP")
+	flag.Parse()
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/user", showUser)
-	mux.HandleFunc("/user/create", createUser)
-	mux.HandleFunc("/users", showUsersList)
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	log.Printf("Запуск сервера на %s", *addr)
-	err := http.ListenAndServe(*addr, mux)
-	log.Fatal(err)
+	app := &application{
+		errorLog: errorLog,
+		infoLog:  infoLog,
+	}
+
+	srv := &http.Server{
+		Addr:     *addr,
+		ErrorLog: errorLog,
+		Handler:  app.routes(),
+	}
+
+	infoLog.Printf("Запуск сервера на %s", *addr)
+	err := srv.ListenAndServe()
+	errorLog.Fatal(err)
 }
