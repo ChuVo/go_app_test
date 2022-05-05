@@ -34,3 +34,12 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte("Добавление нового пользователя"))
 }
+
+func showUsersList(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/users" {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Write([]byte("All users"))
+}
