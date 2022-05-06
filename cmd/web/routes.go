@@ -3,11 +3,14 @@ package main
 import "net/http"
 
 func (app *application) routes() *http.ServeMux {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/user", app.showUser)
-	mux.HandleFunc("/user/create", app.createUser)
-	mux.HandleFunc("/users", app.showUsersList)
-	
-	return mux
+	router := http.NewServeMux()
+	router.HandleFunc("/", app.home)
+	router.HandleFunc("/user", app.getUser)
+	router.HandleFunc("/user/create", app.createUser)
+	router.HandleFunc("/users", app.getUsersList)
+	router.HandleFunc("/logout", app.logout)
+	router.HandleFunc("/login", app.login)
+	router.HandleFunc("/register", app.register)
+
+	return router
 }
