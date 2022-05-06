@@ -7,7 +7,10 @@ import (
 	"strconv"
 )
 
+//TODO Change to map
 var usersList []models.User
+
+var DB = make(map[int]models.User)
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
@@ -20,25 +23,32 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) getUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	var currentUser models.User
+
 	if err != nil || id < 1 {
 		app.notFound(w) // Использование помощника notFound()
 		return
-	}
+	} else {
+		for _, user := range usersList {
+			if user.ID == id {
+				currentUser.ID = user.ID
+				currentUser.UserName = user.UserName
+				currentUser.UserEmail = user.UserEmail
+				currentUser.Password = user.Password
+				currentUser.Admin = user.Admin
+				currentUser.Delete = user.Delete
+				break
+			}
+		}
 
-	var currentUser models.User
-	for _, user := range usersList {
-		if user.ID == id {
-			currentUser.ID = user.ID
-			currentUser.UserName = user.UserName
-			currentUser.UserEmail = user.UserEmail
-			currentUser.Admin = user.Admin
-			currentUser.Delete = user.Delete
-			break
+		if currentUser.ID != 0 {
+			fmt.Println(currentUser)
+		} else {
+			fmt.Println("Пользователя с таким ID не существует")
 		}
 	}
 
 	fmt.Fprintf(w, "User with ID %d...", id)
-	fmt.Println(currentUser)
 }
 
 //Register
@@ -50,17 +60,25 @@ func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user models.User
+	var randomId = app.makeRandomId()
 
-	user.ID = app.makeRandomId()
+	user.ID = randomId
 	user.UserEmail = "user@email.ru"
 	user.UserName = "User Name"
+	user.Password = "Password"
 	user.Admin = true
 	user.Delete = false
 	usersList = append(usersList, user)
 
 	fmt.Println("Create new user", user)
 	fmt.Println("New list", usersList)
-	//w.Write([]byte("Добавление нового пользователя"))
+	w.Write([]byte("Добавление нового пользователя"))
+
+	//DB[randomId] = user
+	//
+	//fmt.Println("Create new user", user)
+	//fmt.Println()
+	//fmt.Println(DB)
 }
 
 func (app *application) getUsersList(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +90,7 @@ func (app *application) getUsersList(w http.ResponseWriter, r *http.Request) {
 	if usersList != nil || len(usersList) <= 0 {
 		fmt.Println("Users do not exist yet!!!")
 	} else {
-		fmt.Println(usersList)
+		fmt.Println("All users", usersList)
 	}
 
 	w.Write([]byte("All users"))

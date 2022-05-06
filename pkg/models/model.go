@@ -10,6 +10,7 @@ type User struct {
 	ID        int
 	UserName  string
 	UserEmail string
+	Password  string
 	Admin     bool
 	Delete    bool
 }

@@ -8,9 +8,10 @@ func (app *application) routes() *http.ServeMux {
 	router.HandleFunc("/user", app.getUser)
 	router.HandleFunc("/user/create", app.createUser)
 	router.HandleFunc("/users", app.getUsersList)
+
+	router.HandleFunc("/register", app.register)
 	router.HandleFunc("/logout", app.logout)
 	router.HandleFunc("/login", app.login)
-	router.HandleFunc("/register", app.register)
 
 	return router
 }
